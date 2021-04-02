@@ -90,6 +90,7 @@ public class DefaultShader
             }
         }
 
+        // 重命名
         RelocatorRemapper remapper = new RelocatorRemapper( shadeRequest.getRelocators() );
 
         // noinspection ResultOfMethodCallIgnored
@@ -99,6 +100,8 @@ public class DefaultShader
         try
         {
             out = new JarOutputStream( new BufferedOutputStream( new FileOutputStream( shadeRequest.getUberJar() ) ) );
+
+            // 收集所有jar的META-INF/MANIFEST.MF写入uberJar
             goThroughAllJarEntriesForManifestTransformer( shadeRequest, resources, manifestTransformer, out );
 
             // CHECKSTYLE_OFF: MagicNumber
@@ -154,11 +157,13 @@ public class DefaultShader
                             RelocatorRemapper remapper, JarOutputStream jos, Multimap<String, File> duplicates )
         throws IOException, MojoExecutionException
     {
+        // 一个一个处理jar
         for ( File jar : shadeRequest.getJars() )
         {
 
             getLogger().debug( "Processing JAR " + jar );
 
+            // 处理单个jar配置的filter
             List<Filter> jarFilters = getFilters( jar, shadeRequest.getFilters() );
 
             try ( JarFile jarFile = newJarFile( jar ) )
@@ -169,7 +174,8 @@ public class DefaultShader
                     JarEntry entry = j.nextElement();
 
                     String name = entry.getName();
-                    
+
+                    // 去掉被排除的文件
                     if ( entry.isDirectory() || isFiltered( jarFilters, name ) )
                     {
                         continue;
@@ -231,6 +237,7 @@ public class DefaultShader
             duplicates.put( name, jar );
             if ( name.endsWith( ".class" ) )
             {
+                // 根据relocator转换字节码中引用的类名
                 addRemappedClass( remapper, jos, jar, name, entry.getTime(), in );
             }
             else if ( shadeRequest.isShadeSourcesContent() && name.endsWith( ".java" ) )
@@ -462,6 +469,7 @@ public class DefaultShader
             return;
         }
 
+        // 读取字节码文件
         ClassReader cr = new ClassReader( is );
 
         // We don't pass the ClassReader here. This forces the ClassWriter to rebuild the constant pool.

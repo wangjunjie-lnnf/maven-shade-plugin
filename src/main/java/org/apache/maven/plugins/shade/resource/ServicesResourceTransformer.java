@@ -79,6 +79,7 @@ public class ServicesResourceTransformer
         while ( ( line = lineReader.readLine() ) != null )
         {
             String relContent = line;
+            // 根据Relocator来一行一行的修改类名
             for ( Relocator relocator : relocators )
             {
                 if ( relocator.canRelocateClass( relContent ) )
