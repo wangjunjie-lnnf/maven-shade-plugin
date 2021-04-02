@@ -26,7 +26,7 @@
     <artifactId>maven-plugins</artifactId>
     <groupId>org.apache.maven.plugins</groupId>
     <version>34</version>
-    <relativePath>../../pom/maven/maven-plugins/pom.xml</relativePath>
+<!--    <relativePath>../../pom/maven/maven-plugins/pom.xml</relativePath>-->
   </parent>
 
   <artifactId>maven-shade-plugin</artifactId>
@@ -43,27 +43,6 @@
     <maven>${mavenVersion}</maven>
   </prerequisites>
 
-  <scm>
-    <connection>scm:git:https://gitbox.apache.org/repos/asf/maven-shade-plugin.git</connection>
-    <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/maven-shade-plugin.git</developerConnection>
-    <url>https://github.com/apache/maven-shade-plugin/tree/${project.scm.tag}</url>
-    <tag>maven-shade-plugin-3.2.4</tag>
-  </scm>
-  <issueManagement>
-    <system>jira</system>
-    <url>https://issues.apache.org/jira/browse/MSHADE</url>
-  </issueManagement>
-  <ciManagement>
-    <system>Jenkins</system>
-    <url>https://builds.apache.org/job/maven-box/job/maven-shade-plugin/</url>
-  </ciManagement>
-  <distributionManagement>
-    <site>
-      <id>apache.website</id>
-      <url>scm:svn:https://svn.apache.org/repos/asf/maven/website/components/${maven.site.path}</url>
-    </site>
-  </distributionManagement>
-
   <properties>
     <mavenVersion>3.0</mavenVersion>
     <javaVersion>7</javaVersion>
@@ -71,24 +50,6 @@
     <asmVersion>8.0</asmVersion>
     <project.build.outputTimestamp>2020-05-23T15:29:17Z</project.build.outputTimestamp>
   </properties>
-
-  <contributors>
-    <contributor>
-      <name>Trask Stalnaker</name>
-    </contributor>
-    <contributor>
-      <name>Anthony Dahanne</name>
-    </contributor>
-    <contributor>
-      <name>Fabiano Cipriano de Oliveira</name>
-    </contributor>
-    <contributor>
-      <name>Markus Karg</name>
-    </contributor>
-    <contributor>
-      <name>Torsten Curdt</name>
-    </contributor>
-  </contributors>
 
   <dependencies>
     <!-- Maven -->
@@ -203,51 +164,21 @@
   </dependencies>
 
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.rat</groupId>
-          <artifactId>apache-rat-plugin</artifactId>
-          <configuration>
-            <excludes combine.children="append">
-              <!-- Can't add license header otherwise the tests will fail. -->
-              <exclude>src/it/mrm/repository/services-resource-transformer/*/META-INF/services/org.apache.maven.Shade</exclude>
-              <exclude>src/it/mrm/repository/services-resource-transformer-with-reloc-includes-excludes/*/META-INF/services/org.apache.maven.shade</exclude>
-              <exclude>rel-path-test-files/**</exclude>
-              <exclude>src/it/projects/dep-reduced-pom-use-base-version/repo/org/apache/maven/its/shade/drp/a/0.1-SNAPSHOT/_maven.repositories</exclude>
-              <exclude>src/it/projects/mshade-123/sample.txt</exclude>
-              <exclude>src/it/projects/MSHADE-133/src/main/resources/myConfig.yml</exclude>
-              <exclude>src/it/projects/rerun-with-reloc/src/main/resources/some-ordinary-resource.txt</exclude>
-              <exclude>src/it/projects/rerun-without-reloc/src/main/resources/some-ordinary-resource.txt</exclude>
-              <exclude>src/it/projects/MSHADE-182/src/main/resources/META-INF/services/relocateme.Service</exclude>
-            </excludes>
-         </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-enforcer-plugin</artifactId>
-          <executions>
-            <execution>
-              <id>enforce-bytecode-version</id>
-              <configuration>
-                <rules>
-                  <enforceBytecodeVersion>
-                    <ignoreClasses>
-                      <ignoreClass>module-info</ignoreClass>
-                    </ignoreClasses>
-                    <excludes>
-                      <exclude>org.vafer:jdependency</exclude>
-                    </excludes>
-                  </enforceBytecodeVersion>
-                </rules>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-component-metadata</artifactId>
@@ -263,60 +194,4 @@
     </plugins>
   </build>
 
-  <profiles>
-    <profile>
-      <id>run-its</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>test-jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-invoker-plugin</artifactId>
-            <configuration>
-              <goals>
-                <goal>package</goal>
-              </goals>
-              <projectsDirectory>src/it/projects</projectsDirectory>
-              <settingsFile>src/it/mrm/settings.xml</settingsFile>
-              <extraArtifacts>
-                <extraArtifact>org.apache.maven.plugins:maven-shade-plugin:${project.version}:test-jar</extraArtifact>
-              </extraArtifacts>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>mrm-maven-plugin</artifactId>
-            <version>1.2.0</version>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>start</goal>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <repositories>
-                <mockRepo>
-                  <source>src/it/mrm/repository</source>
-                  <cloneTo>target/mock-repo</cloneTo> <!-- due to on the fly created jars -->
-                </mockRepo>
-                <proxyRepo />
-              </repositories>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>
